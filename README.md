@@ -78,21 +78,21 @@ The following table contains all the issues discovered during the audit, ordered
 
 | Chapter      | Issue Title             | Issue Status | Severity    |
 |:------------:| ----------------------- |:------------:|:-----------:|
-| 4.1  | [When replacing a subscription, credits from the previous subscription are lost](#41-when-replacing-a-subscription-credits-from-the-previous-subscription-are-lost) | Open  | Medium |
-| 4.2  | [`Delegated.delegate()` allows calling any function with the smart contract as `msg.sender`](#42-delegateddelegate-allows-calling-any-function-with-the-smart-contract-as-msgsender) | Open  | Medium |
-| 4.3  | [Consider removing `usesNonce`](#43-consider-removing-usesnonce) | Open  | Minor |
-| 4.4  | [Consider requiring existence in `SubscriptionManager.nextPaymentTimestamp()`](#44-consider-requiring-existence-in-subscriptionmanagernextpaymenttimestamp) | Open  | Minor |
-| 4.5  | [Fee recipient or amount can be changed via front running](#45-fee-recipient-or-amount-can-be-changed-via-front-running) | Open  | Minor |
-| 4.6  | [Optimization: avoid updating `Meta.credits` when it&#x27;s already zero](#46-optimization-avoid-updating-metacredits-when-its-already-zero) | Open  | Minor |
-| 4.7  | [Consider merging `Subscription` and `Meta`](#47-consider-merging-subscription-and-meta) | Open  | Minor |
-| 4.8  | [Consider renaming `SubscriptionManager.MAX_FEE` and `SubscriptionManager.fee`](#48-consider-renaming-subscriptionmanagermax_fee-and-subscriptionmanagerfee) | Open  | Minor |
-| 4.9  | [Use `IERC20` type where appropriate](#49-use-ierc20-type-where-appropriate) | Open  | Minor |
+| 4.1  | [When replacing a subscription, credits from the previous subscription are lost](#41-when-replacing-a-subscription-credits-from-the-previous-subscription-are-lost) | Closed  | Medium |
+| 4.2  | [`Delegated.delegate()` allows calling any function with the smart contract as `msg.sender`](#42-delegateddelegate-allows-calling-any-function-with-the-smart-contract-as-msgsender) | Closed  | Medium |
+| 4.3  | [Consider removing `usesNonce`](#43-consider-removing-usesnonce) | Closed  | Minor |
+| 4.4  | [Consider requiring existence in `SubscriptionManager.nextPaymentTimestamp()`](#44-consider-requiring-existence-in-subscriptionmanagernextpaymenttimestamp) | Closed  | Minor |
+| 4.5  | [Fee recipient or amount can be changed via front running](#45-fee-recipient-or-amount-can-be-changed-via-front-running) | Won&#x27;t Fix  | Minor |
+| 4.6  | [Optimization: avoid updating `Meta.credits` when it&#x27;s already zero](#46-optimization-avoid-updating-metacredits-when-its-already-zero) | Closed  | Minor |
+| 4.7  | [Consider merging `Subscription` and `Meta`](#47-consider-merging-subscription-and-meta) | Closed  | Minor |
+| 4.8  | [Consider renaming `SubscriptionManager.MAX_FEE` and `SubscriptionManager.fee`](#48-consider-renaming-subscriptionmanagermax_fee-and-subscriptionmanagerfee) | Closed  | Minor |
+| 4.9  | [Use `IERC20` type where appropriate](#49-use-ierc20-type-where-appropriate) | Closed  | Minor |
 
 ### 4.1 When replacing a subscription, credits from the previous subscription are lost
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Medium | Open | This issue is currently under review. |
+| Medium | Closed | This is fixed in https://github.com/ConsenSys/daisy-subscription-contracts/pull/5 by adding `prev.credits` to the new subscription&#x27;s credits. |
 
 #### Description
 
@@ -114,7 +114,7 @@ credits = credits.add(prev.credits);
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Medium | Open | This issue is currently under review. |
+| Medium | Closed | This has been fixed in https://github.com/ConsenSys/daisy-subscription-contracts/pull/5 by using `delegatecall` instead of `call` to preserve the original `msg.sender`. Correspondingly, checks for delegation ignore `msg.sender` and exclusively rely on `_delegatedData`. |
 
 #### Description
 
@@ -191,7 +191,7 @@ A few recommendations, in descending order of preference:
 
 1. In a previous iteration of the contract, delegation was handled in each function on a case-by-case basis. Thus functions had to "opt in" to delegation, and other functions could not be called with a misleading `msg.sender`. It may be safer to return to that delegation mechanism.
 2. As an alternative, perhaps it's possible to add signature checking directly to `delegate()` so only calls with proper signatures will be forwarded at all.
-3. Finally, `delegateCall` would be a way to preserve `msg.sender` during delegation. This method carries some general risks, but this is an option if the other recommendations aren't feasible.
+3. Finally, `delegatecall` would be a way to preserve `msg.sender` during delegation. This method carries some general risks, but this is an option if the other recommendations aren't feasible.
 
 ---------------------
 
@@ -199,7 +199,7 @@ A few recommendations, in descending order of preference:
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Minor | Open | This issue is currently under review. |
+| Minor | Closed | This is fixed in https://github.com/ConsenSys/daisy-subscription-contracts/pull/5 by removing the `usesNonce` option and requiring a nonce everywhere. |
 
 #### Description
 
@@ -238,7 +238,7 @@ Remove `usesNonce` and instead always use a nonce.
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Minor | Open | This issue is currently under review. |
+| Minor | Closed | This is fixed in https://github.com/ConsenSys/daisy-subscription-contracts/pull/5 as per the recommendation. |
 
 #### Description
 
@@ -290,7 +290,7 @@ require(_subscriptionExists(subscriptionId), "Subscription doesn't exist");
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Minor | Open | This issue is currently under review. |
+| Minor | Won&#x27;t Fix | Per the recommendation, the client team has decided not to make any change to address this. |
 
 #### Description
 
@@ -325,7 +325,7 @@ If a change is desired, perhaps a two-step process with a delay can be required 
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Minor | Open | This issue is currently under review. |
+| Minor | Closed | This is fixed in https://github.com/ConsenSys/daisy-subscription-contracts/pull/5 as per the recommendation. |
 
 #### Description
 
@@ -363,7 +363,7 @@ if (credits < price) {
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Minor | Open | This issue is currently under review. |
+| Minor | Closed | This is fixed in https://github.com/ConsenSys/daisy-subscription-contracts/pull/5, where the two structs have been merged into one (`Subscription`). |
 
 #### Description
 
@@ -464,7 +464,7 @@ Merge the fields from `Meta` into `Subscription` itself and use that struct excl
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Minor | Open | This issue is currently under review. |
+| Minor | Closed | This has been fixed in https://github.com/ConsenSys/daisy-subscription-contracts/pull/5, where the two state variables have been renamed to `feeNumerator` and `FEE_DENOMINATOR`. |
 
 #### Description
 
@@ -490,7 +490,7 @@ Consider using `feeNumerator` and `feeDenominator` or the like to better describ
 
 | Severity     | Status    | Remediation Comment |
 |:------------:|:---------:| ------------------- |
-| Minor | Open | This issue is currently under review. |
+| Minor | Closed | This has been addressed in https://github.com/ConsenSys/daisy-subscription-contracts/pull/5, where the stricter type `IERC20` is used in most places. |
 
 #### Description
 
